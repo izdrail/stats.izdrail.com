@@ -1,0 +1,46 @@
+name: PUBLISH_IMAGE
+
+on:
+  push:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+
+jobs:
+  publish-server-image:
+    name: Publish 'waka-readme-stats' image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx 🐋
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to the container registry 🚪
+        uses: docker/login-action@v2
+        with:
+          username: wakareadmestats
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker 🏋️
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: wakareadmestats/waka-readme-stats
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+
+      - name: Build and push Docker image 🏗️
+        uses: docker/build-push-action@v4
+        with:
+          push: ${{ github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/releases') }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

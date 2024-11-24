@@ -1,0 +1,18 @@
+# Environment files:
+*.env
+
+# Generated graph images:
+assets/
+
+# Cloned repo path:
+repo/
+
+# Library roots:
+venv/
+
+# Python caches:
+__pycache__/
+
+# IDE configuration files:
+.vscode
+.idea
