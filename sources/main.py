@@ -135,7 +135,7 @@ async def collect_user_repositories() -> Dict:
     """
     DBM.i("Getting user repositories list...")
     repositories = await DM.get_remote_graphql("user_repository_list", username=GHM.USER.login, id=GHM.USER.node_id)
-    print(repositories)
+    #print(repositories)
     repo_names = [repo["name"] for repo in repositories]
     DBM.g("\tUser repository list collected!")
 
@@ -158,7 +158,7 @@ async def get_stats() -> str:
 
     stats = str()
     repositories = await collect_user_repositories()
-    print(f"Total repositories: {len(repositories)}")
+    #print(f"Total repositories: {len(repositories)}")
 
 
     if EM.SHOW_LINES_OF_CODE or EM.SHOW_LOC_CHART or EM.SHOW_COMMIT or EM.SHOW_DAYS_OF_WEEK:  # calculate commit data if any one of these is enabled

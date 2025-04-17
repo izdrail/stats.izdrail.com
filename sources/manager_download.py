@@ -166,7 +166,7 @@ class DownloadManager:
     @staticmethod
     async def _fetch_graphql_query(query: str, retries_count: int = 10, **kwargs) -> Dict:
         headers = {"Authorization": f"Bearer {EM.GH_TOKEN}"}
-        print(query)
+        #print(query)
         res = await DownloadManager._client.post(
             "https://api.github.com/graphql",
             json={"query": Template(GITHUB_API_QUERIES[query]).substitute(kwargs)},
@@ -190,7 +190,7 @@ class DownloadManager:
 
     @staticmethod
     async def _fetch_graphql_paginated(query: str, **kwargs) -> List[Dict]:
-        print(query)
+        #(query)
         kwargs["first"] = 100  # GitHub's hard limit
         initial = await DownloadManager._fetch_graphql_query(query, **kwargs, pagination='first: 100')
         nodes, page_info = DownloadManager._find_pagination_and_data_list(initial)
@@ -209,7 +209,7 @@ class DownloadManager:
         if key not in DownloadManager._REMOTE_RESOURCES_CACHE:
             if "$pagination" in GITHUB_API_QUERIES[query]:
                 result = await DownloadManager._fetch_graphql_paginated(query, **kwargs)
-                print(f"Fetched {len(result)} results from {query}!")
+                #print(f"Fetched {len(result)} results from {query}!")
             else:
                 result = await DownloadManager._fetch_graphql_query(query, **kwargs)
             DownloadManager._REMOTE_RESOURCES_CACHE[key] = result
