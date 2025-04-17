@@ -44,7 +44,7 @@ async def calculate_commit_data(repositories: Dict) -> Tuple[Dict, Dict]:
     return yearly_data, date_data
 
 
-async def update_data_with_commit_stats(repo_details: Dict, yearly_data: Dict, date_data: Dict):
+
     """
     Updates yearly commit data with commits from given repository.
     Skips update if the commit isn't related to any repository.
@@ -60,7 +60,10 @@ async def update_data_with_commit_stats(repo_details: Dict, yearly_data: Dict, d
         return
 
     for branch in branch_data:
-        commit_data = await DM.get_remote_graphql("repo_commit_list", owner=owner, name=repo_details["name"], branch=branch["name"], id=GHM.USER.node_id)
+        commit_data = await DM.get_remote_graphql("repo_commit_list", owner=owner, name=repo_details["name"], branch=branch["name"], id=GHM.USER.node_id, first=100, after=0)
+        print(f"Commit data for {branch['name']}...")
+        print(commit_data)
+        print("--------------------------------")
         for commit in commit_data:
             date = search(r"\d+-\d+-\d+", commit["committedDate"]).group()
             curr_year = datetime.fromisoformat(date).year
@@ -81,6 +84,55 @@ async def update_data_with_commit_stats(repo_details: Dict, yearly_data: Dict, d
                     yearly_data[curr_year][quarter][repo_details["primaryLanguage"]["name"]] = {"add": 0, "del": 0}
                 yearly_data[curr_year][quarter][repo_details["primaryLanguage"]["name"]]["add"] += commit["additions"]
                 yearly_data[curr_year][quarter][repo_details["primaryLanguage"]["name"]]["del"] += commit["deletions"]
+
+        if not EM.DEBUG_RUN:
+            await sleep(0.4)
+async def update_data_with_commit_stats(repo_details: Dict, yearly_data: Dict, date_data: Dict):
+    owner = repo_details["owner"]["login"]
+    branch_data = await DM.get_remote_graphql("repo_branch_list", owner=owner, name=repo_details["name"])
+    if len(branch_data) == 0:
+        DBM.w("\t\tSkipping repo.")
+        return
+
+    for branch in branch_data:
+        commit_data = await DM.get_remote_graphql(
+            "repo_commit_list",
+            owner=owner,
+            name=repo_details["name"],
+            branch=branch["name"],
+            id=GHM.USER.node_id
+        )
+
+        print(f"\t\tFetching commit stats for branch '{branch['name']}' in repo '{repo_details['name']}'...")
+        print(f"\t\t\t{len(commit_data)} commits found.")
+
+        print(commit_data)
+        
+        if not isinstance(commit_data, list):
+            print(f"\t\tCommit fetch failed for branch '{branch['name']}' in repo '{repo_details['name']}'!")
+            print(f"\t\tError: {commit_data}")
+            continue  # Skip this branch
+
+        for commit in commit_data:
+            date_match = search(r"\d+-\d+-\d+", commit.get("committedDate", ""))
+            if not date_match:
+                continue
+
+            date = date_match.group()
+            curr_year = datetime.fromisoformat(date).year
+            quarter = (datetime.fromisoformat(date).month - 1) // 3 + 1
+
+            if repo_details["name"] not in date_data:
+                date_data[repo_details["name"]] = dict()
+            if branch["name"] not in date_data[repo_details["name"]]:
+                date_data[repo_details["name"]][branch["name"]] = dict()
+            date_data[repo_details["name"]][branch["name"]][commit["oid"]] = commit["committedDate"]
+
+            if repo_details["primaryLanguage"] is not None:
+                lang = repo_details["primaryLanguage"]["name"]
+                yearly_data.setdefault(curr_year, {}).setdefault(quarter, {}).setdefault(lang, {"add": 0, "del": 0})
+                yearly_data[curr_year][quarter][lang]["add"] += commit["additions"]
+                yearly_data[curr_year][quarter][lang]["del"] += commit["deletions"]
 
         if not EM.DEBUG_RUN:
             await sleep(0.4)
