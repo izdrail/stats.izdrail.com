@@ -61,9 +61,9 @@ async def calculate_commit_data(repositories: Dict) -> Tuple[Dict, Dict]:
 
     for branch in branch_data:
         commit_data = await DM.get_remote_graphql("repo_commit_list", owner=owner, name=repo_details["name"], branch=branch["name"], id=GHM.USER.node_id, first=100, after=0)
-        print(f"Commit data for {branch['name']}...")
-        print(commit_data)
-        print("--------------------------------")
+        #print(f"Commit data for {branch['name']}...")
+        #print(commit_data)
+        #print("--------------------------------")
         for commit in commit_data:
             date = search(r"\d+-\d+-\d+", commit["committedDate"]).group()
             curr_year = datetime.fromisoformat(date).year
@@ -103,14 +103,14 @@ async def update_data_with_commit_stats(repo_details: Dict, yearly_data: Dict, d
             id=GHM.USER.node_id
         )
 
-        print(f"\t\tFetching commit stats for branch '{branch['name']}' in repo '{repo_details['name']}'...")
-        print(f"\t\t\t{len(commit_data)} commits found.")
+        #print(f"\t\tFetching commit stats for branch '{branch['name']}' in repo '{repo_details['name']}'...")
+        #print(f"\t\t\t{len(commit_data)} commits found.")
 
-        print(commit_data)
+        #print(commit_data)
         
         if not isinstance(commit_data, list):
-            print(f"\t\tCommit fetch failed for branch '{branch['name']}' in repo '{repo_details['name']}'!")
-            print(f"\t\tError: {commit_data}")
+            #print(f"\t\tCommit fetch failed for branch '{branch['name']}' in repo '{repo_details['name']}'!")
+            #print(f"\t\tError: {commit_data}")
             continue  # Skip this branch
 
         for commit in commit_data:
