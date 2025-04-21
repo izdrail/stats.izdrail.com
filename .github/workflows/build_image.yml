@@ -9,7 +9,7 @@ concurrency:
 
 jobs:
   publish-server-image:
-    name: Publish 'waka-readme-stats' image
+    name: Publish 'status.izdrail.com' image
     runs-on: ubuntu-latest
 
     steps:
