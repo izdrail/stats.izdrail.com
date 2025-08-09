@@ -149,7 +149,7 @@ inputs:
 
 runs:
   using: 'docker'
-  image: 'docker://izdrail/waka-readme-stats:master'
+  image: 'docker://izdrail/status.izdrail.com:main'
 
 branding:
   icon: 'activity'
