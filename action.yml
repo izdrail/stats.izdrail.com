@@ -149,7 +149,7 @@ inputs:
 
 runs:
   using: 'docker'
-  image: 'docker://izdrail/status.izdrail.com:main'
+  image: 'docker://izdrail/stats.izdrail.com:main'
 
 branding:
   icon: 'activity'
