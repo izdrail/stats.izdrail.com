@@ -11,7 +11,7 @@ concurrency:
 jobs:
   ci:
     name: Run Test and Review PR
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - name: Checkout 🛎️
